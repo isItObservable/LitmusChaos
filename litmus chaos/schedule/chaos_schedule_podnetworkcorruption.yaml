@@ -1,0 +1,47 @@
+apiVersion: litmuschaos.io/v1alpha1
+kind: ChaosSchedule
+metadata:
+  name: sc-pod-net-corrup
+spec:
+  schedule:
+    repeat:
+      properties:
+        #format should be like "10m" or "2h" accordingly for minutes or hours
+        minChaosInterval: "10m"
+  engineTemplateSpec:
+    engineState: 'active'
+    appinfo:
+      appns: 'hipster-shop'
+      applabel: 'product=hipster-shop'
+      appkind: 'deployment'
+    annotationCheck: 'false'
+    chaosServiceAccount: pod-delete-sa
+    jobCleanUpPolicy: 'delete'
+    components:
+      runner:
+        runnerAnnotations:
+          sidecar.istio.io/inject: "false"
+    experiments:
+    - name: pod-network-corruption
+      spec:
+        components:
+          experimentAnnotations:
+            sidecar.istio.io/inject: "false"
+          env:
+            - name: TOTAL_CHAOS_DURATION
+              value: '60' # in seconds
+              # provide the name of container runtime
+            # for litmus LIB, it supports docker, containerd, crio
+            # for pumba LIB, it supports docker only
+            - name: CONTAINER_RUNTIME
+              value: 'docker'
+            # provide the socket file path
+            - name: SOCKET_PATH
+              value: '/var/run/docker.sock'
+            - name: NETWORK_PACKET_CORRUPTION_PERCENTAGE
+              value: '90' #in PERCENTAGE
+            ## percentage of total pods to target
+            - name: PODS_AFFECTED_PERC
+              value: '50'
+            - name: NETWORK_INTERFACE
+              value: 'eth0'

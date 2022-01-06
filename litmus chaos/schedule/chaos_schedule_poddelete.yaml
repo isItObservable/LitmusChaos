@@ -1,0 +1,47 @@
+apiVersion: litmuschaos.io/v1alpha1
+kind: ChaosSchedule
+metadata:
+  name: sc-pod-delete
+spec:
+  schedule:
+    repeat:
+      properties:
+        #format should be like "10m" or "2h" accordingly for minutes or hours
+        minChaosInterval: "10m"
+  engineTemplateSpec:
+    engineState: 'active'
+    appinfo:
+      appns: 'hipster-shop'
+      applabel: 'product=hipster-shop'
+      appkind: 'deployment'
+    annotationCheck: 'false'
+    chaosServiceAccount: pod-delete-sa
+    jobCleanUpPolicy: 'delete'
+    components:
+      runner:
+        runnerAnnotations:
+          sidecar.istio.io/inject: "false"
+    experiments:
+      - name: pod-delete
+        spec:
+          components:
+            experimentAnnotations:
+              sidecar.istio.io/inject: "false"
+            env:
+              # set chaos duration (in sec) as desired
+              - name: TOTAL_CHAOS_DURATION
+                value: '600'
+
+              # set chaos interval (in sec) as desired
+              - name: CHAOS_INTERVAL
+                value: '10'
+
+              # pod failures without '--force' & default terminationGracePeriodSeconds
+              - name: FORCE
+                value: 'true'
+              - name: RANDOMNESS
+                value: 'true'
+              - name: PODS_AFFECTED_PERC
+                value: '40'
+              - name: SEQUENCE
+                value: 'serial'

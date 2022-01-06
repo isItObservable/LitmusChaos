@@ -1,0 +1,50 @@
+apiVersion: litmuschaos.io/v1alpha1
+kind: ChaosSchedule
+metadata:
+  name: sc-pod-cpu-hog
+spec:
+  schedule:
+    repeat:
+      properties:
+        #format should be like "10m" or "2h" accordingly for minutes or hours
+        minChaosInterval: "10m"
+  engineTemplateSpec:
+    engineState: 'active'
+    appinfo:
+      appns: 'hipster-shop'
+      applabel: 'product=hipster-shop'
+      appkind: 'deployment'
+    annotationCheck: 'false'
+    chaosServiceAccount: pod-delete-sa
+    jobCleanUpPolicy: 'delete'
+    components:
+      runner:
+        runnerAnnotations:
+          sidecar.istio.io/inject: "false"
+    experiments:
+      - name: pod-cpu-hog
+        spec:
+          components:
+            experimentAnnotations:
+              sidecar.istio.io/inject: "false"
+            env:
+              - name: TOTAL_CHAOS_DURATION
+                value: '700' # in seconds
+
+              - name: CPU_CORES
+                value: '2'
+
+              ## Percentage of total pods to target
+              - name: PODS_AFFECTED_PERC
+                value: '50'
+
+              ## provide the cluster runtime
+              - name: CONTAINER_RUNTIME
+                value: 'docker'
+
+              # provide the socket file path
+              - name: SOCKET_PATH
+                value: '/var/run/docker.sock'
+
+              - name: TARGET_CONTAINER
+                value: 'server'

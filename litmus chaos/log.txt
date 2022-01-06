@@ -1,0 +1,55 @@
+{"level":"info","ts":1626886639.0531728,"logger":"scheduler","msg":"Go Version: go1.16.6"}
+{"level":"info","ts":1626886639.0532176,"logger":"scheduler","msg":"Go OS/Arch: linux/amd64"}
+{"level":"info","ts":1626886639.0532248,"logger":"scheduler","msg":"Version of operator-sdk: v0.15.2"}
+{"level":"info","ts":1626886639.0537987,"logger":"leader","msg":"Trying to become the leader."}
+{"level":"info","ts":1626886640.5379114,"logger":"leader","msg":"No pre-existing lock was found."}
+{"level":"info","ts":1626886640.5462623,"logger":"leader","msg":"Became the leader."}
+{"level":"info","ts":1626886642.003297,"logger":"controller-runtime.metrics","msg":"metrics server is starting to listen","addr":"0.0.0.0:8383"}
+{"level":"info","ts":1626886642.0036948,"logger":"scheduler","msg":"Registering Components."}
+{"level":"info","ts":1626886645.137909,"logger":"metrics","msg":"Metrics Service object created","Service.Name":"chaos-scheduler-metrics","Service.Namespace":"litmus"}
+{"level":"info","ts":1626886646.815362,"logger":"scheduler","msg":"Could not create ServiceMonitor object","error":"an empty namespace may not be set during creation"}
+{"level":"info","ts":1626886646.8191533,"logger":"scheduler","msg":"Starting the Chaos Scheduler."}
+{"level":"info","ts":1626886646.8207262,"logger":"controller-runtime.controller","msg":"Starting EventSource","controller":"chaosscheduler-controller","source":"kind source: /, Kind="}
+{"level":"info","ts":1626886646.822421,"logger":"controller-runtime.controller","msg":"Starting EventSource","controller":"chaosscheduler-controller","source":"kind source: /, Kind="}
+{"level":"info","ts":1626886646.8227212,"logger":"controller-runtime.controller","msg":"Starting Controller","controller":"chaosscheduler-controller"}
+{"level":"info","ts":1626886646.8229804,"logger":"controller-runtime.manager","msg":"starting metrics server","path":"/metrics"}
+{"level":"info","ts":1626886647.576941,"logger":"controller-runtime.controller","msg":"Starting workers","controller":"chaosscheduler-controller","worker count":1}
+{"level":"info","ts":1626886647.626951,"logger":"controller_chaos-scheduler","msg":"Reconciling ChaosScheduler","Request.Namespace":"hipster-shop","Request.Name":"schedule-hipster-shop"}
+{"level":"info","ts":1626886647.6276867,"logger":"controller_chaos-scheduler","msg":"Current scheduler type derived is ","Request.Namespace":"hipster-shop","Request.Name":"schedule-hipster-shop","schedulerType":"repeat"}
+{"level":"info","ts":1626886647.688595,"logger":"controller_chaos-scheduler","msg":"CronString formed ","Request.Namespace":"hipster-shop","Request.Name":"schedule-hipster-shop","Cron String":"*/10 * * * *"}
+{"level":"info","ts":1626886648.7166305,"logger":"controller_chaos-scheduler","msg":"Reconciling ChaosScheduler","Request.Namespace":"hipster-shop","Request.Name":"schedule-hipster-shop"}
+{"level":"info","ts":1626886648.717296,"logger":"controller_chaos-scheduler","msg":"Current scheduler type derived is ","Request.Namespace":"hipster-shop","Request.Name":"schedule-hipster-shop","schedulerType":"repeat"}
+{"level":"info","ts":1626886648.728787,"logger":"controller_chaos-scheduler","msg":"CronString formed ","Request.Namespace":"hipster-shop","Request.Name":"schedule-hipster-shop","Cron String":"*/10 * * * *"}
+{"level":"info","ts":1626886648.7292671,"logger":"controller_chaos-scheduler","msg":"Hold on, time left to schedule the engine","Request.Namespace":"hipster-shop","Request.Name":"schedule-hipster-shop","Duration(seconds)":151.270734343}
+{"level":"info","ts":1626886649.7601748,"logger":"controller_chaos-scheduler","msg":"Reconciling ChaosScheduler","Request.Namespace":"hipster-shop","Request.Name":"schedule-hipster-shop"}
+{"level":"info","ts":1626886649.7602475,"logger":"controller_chaos-scheduler","msg":"Current scheduler type derived is ","Request.Namespace":"hipster-shop","Request.Name":"schedule-hipster-shop","schedulerType":"repeat"}
+{"level":"info","ts":1626886649.7920904,"logger":"controller_chaos-scheduler","msg":"CronString formed ","Request.Namespace":"hipster-shop","Request.Name":"schedule-hipster-shop","Cron String":"*/10 * * * *"}
+{"level":"info","ts":1626886649.7921755,"logger":"controller_chaos-scheduler","msg":"Hold on, time left to schedule the engine","Request.Namespace":"hipster-shop","Request.Name":"schedule-hipster-shop","Duration(seconds)":150.207825427}
+{"level":"info","ts":1626886800.0010192,"logger":"controller_chaos-scheduler","msg":"Reconciling ChaosScheduler","Request.Namespace":"hipster-shop","Request.Name":"schedule-hipster-shop"}
+{"level":"info","ts":1626886800.0011518,"logger":"controller_chaos-scheduler","msg":"Current scheduler type derived is ","Request.Namespace":"hipster-shop","Request.Name":"schedule-hipster-shop","schedulerType":"repeat"}
+{"level":"info","ts":1626886800.0150177,"logger":"controller_chaos-scheduler","msg":"CronString formed ","Request.Namespace":"hipster-shop","Request.Name":"schedule-hipster-shop","Cron String":"*/10 * * * *"}
+{"level":"info","ts":1626886800.0150914,"logger":"controller_chaos-scheduler","msg":"The next scheduled is delayed as the older chaosengine is not completed yet","Request.Namespace":"hipster-shop","Request.Name":"schedule-hipster-shop"}
+{"level":"info","ts":1626922646.840446,"logger":"controller_chaos-scheduler","msg":"Reconciling ChaosScheduler","Request.Namespace":"hipster-shop","Request.Name":"schedule-hipster-shop"}
+{"level":"info","ts":1626922646.842018,"logger":"controller_chaos-scheduler","msg":"Current scheduler type derived is ","Request.Namespace":"hipster-shop","Request.Name":"schedule-hipster-shop","schedulerType":"repeat"}
+{"level":"info","ts":1626922646.8630643,"logger":"controller_chaos-scheduler","msg":"CronString formed ","Request.Namespace":"hipster-shop","Request.Name":"schedule-hipster-shop","Cron String":"*/10 * * * *"}
+{"level":"info","ts":1626922646.8649926,"logger":"controller_chaos-scheduler","msg":"The next scheduled is delayed as the older chaosengine is not completed yet","Request.Namespace":"hipster-shop","Request.Name":"schedule-hipster-shop"}
+{"level":"info","ts":1626922646.866934,"logger":"controller_chaos-scheduler","msg":"Reconciling ChaosScheduler","Request.Namespace":"hipster-shop","Request.Name":"schedule-hipster-shop"}
+{"level":"info","ts":1626922646.8676147,"logger":"controller_chaos-scheduler","msg":"Current scheduler type derived is ","Request.Namespace":"hipster-shop","Request.Name":"schedule-hipster-shop","schedulerType":"repeat"}
+{"level":"info","ts":1626922646.8794715,"logger":"controller_chaos-scheduler","msg":"CronString formed ","Request.Namespace":"hipster-shop","Request.Name":"schedule-hipster-shop","Cron String":"*/10 * * * *"}
+{"level":"info","ts":1626922646.8807812,"logger":"controller_chaos-scheduler","msg":"The next scheduled is delayed as the older chaosengine is not completed yet","Request.Namespace":"hipster-shop","Request.Name":"schedule-hipster-shop"}
+{"level":"info","ts":1626945940.9657083,"logger":"controller_chaos-scheduler","msg":"Reconciling ChaosScheduler","Request.Namespace":"hipster-shop","Request.Name":"schedule-hipster-shop"}
+{"level":"info","ts":1626945940.9668891,"logger":"controller_chaos-scheduler","msg":"Current scheduler type derived is ","Request.Namespace":"hipster-shop","Request.Name":"schedule-hipster-shop","schedulerType":"repeat"}
+{"level":"info","ts":1626945941.0010302,"logger":"controller_chaos-scheduler","msg":"CronString formed ","Request.Namespace":"hipster-shop","Request.Name":"schedule-hipster-shop","Cron String":"*/10 * * * *"}
+{"level":"info","ts":1626945941.0048013,"logger":"controller_chaos-scheduler","msg":"The next scheduled is delayed as the older chaosengine is not completed yet","Request.Namespace":"hipster-shop","Request.Name":"schedule-hipster-shop"}
+{"level":"info","ts":1626945941.0065439,"logger":"controller_chaos-scheduler","msg":"Reconciling ChaosScheduler","Request.Namespace":"hipster-shop","Request.Name":"schedule-hipster-shop"}
+{"level":"info","ts":1626945941.0076962,"logger":"controller_chaos-scheduler","msg":"Current scheduler type derived is ","Request.Namespace":"hipster-shop","Request.Name":"schedule-hipster-shop","schedulerType":"repeat"}
+{"level":"info","ts":1626945941.0225677,"logger":"controller_chaos-scheduler","msg":"CronString formed ","Request.Namespace":"hipster-shop","Request.Name":"schedule-hipster-shop","Cron String":"*/10 * * * *"}
+{"level":"info","ts":1626945941.0262446,"logger":"controller_chaos-scheduler","msg":"The next scheduled is delayed as the older chaosengine is not completed yet","Request.Namespace":"hipster-shop","Request.Name":"schedule-hipster-shop"}
+{"level":"info","ts":1626958646.8409197,"logger":"controller_chaos-scheduler","msg":"Reconciling ChaosScheduler","Request.Namespace":"hipster-shop","Request.Name":"schedule-hipster-shop"}
+{"level":"info","ts":1626958646.8431418,"logger":"controller_chaos-scheduler","msg":"Current scheduler type derived is ","Request.Namespace":"hipster-shop","Request.Name":"schedule-hipster-shop","schedulerType":"repeat"}
+{"level":"info","ts":1626958646.9059365,"logger":"controller_chaos-scheduler","msg":"CronString formed ","Request.Namespace":"hipster-shop","Request.Name":"schedule-hipster-shop","Cron String":"*/10 * * * *"}
+{"level":"info","ts":1626958646.9082987,"logger":"controller_chaos-scheduler","msg":"The next scheduled is delayed as the older chaosengine is not completed yet","Request.Namespace":"hipster-shop","Request.Name":"schedule-hipster-shop"}
+{"level":"info","ts":1626958646.9093125,"logger":"controller_chaos-scheduler","msg":"Reconciling ChaosScheduler","Request.Namespace":"hipster-shop","Request.Name":"schedule-hipster-shop"}
+{"level":"info","ts":1626958646.9095044,"logger":"controller_chaos-scheduler","msg":"Current scheduler type derived is ","Request.Namespace":"hipster-shop","Request.Name":"schedule-hipster-shop","schedulerType":"repeat"}
+{"level":"info","ts":1626958646.9240162,"logger":"controller_chaos-scheduler","msg":"CronString formed ","Request.Namespace":"hipster-shop","Request.Name":"schedule-hipster-shop","Cron String":"*/10 * * * *"}
+{"level":"info","ts":1626958646.926128,"logger":"controller_chaos-scheduler","msg":"The next scheduled is delayed as the older chaosengine is not completed yet","Request.Namespace":"hipster-shop","Request.Name":"schedule-hipster-shop"}

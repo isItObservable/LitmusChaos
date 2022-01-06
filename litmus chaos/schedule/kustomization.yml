@@ -1,0 +1,11 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+metadata:
+  name: chaos_experiment
+
+resources:
+  - chaos_schedule_nodememoryhog.yaml
+  - choas_schedule_nodeiostress.yaml
+  - choas_schedule_podcpuhog.yaml
+  - chaos_schedule_nodedrain.yaml
+  - chaos_schedule_nodedrain2.yaml

@@ -1,0 +1,20 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: chaos-exporter-monitor
+  namespace: default
+  labels:
+    release: prometheus-stack
+spec:
+  selector:
+    matchLabels:
+      app: chaos-exporter
+  namespaceSelector:
+    matchNames:
+      - litmus
+  podMetricsEndpoints:
+    - port: tcp
+    - interval: 1s
+      metricRelabelings:
+        - targetLabel: instance
+          replacement: 'chaos-exporter-service'

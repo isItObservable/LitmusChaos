@@ -179,8 +179,14 @@ litmusportal-frontend-service   NodePort    10.100.105.154  <none>      9091:302
 litmusportal-server-service     NodePort    10.100.150.175  <none>      9002:30479/TCP,9003:31949/TCP 7m8s
 mongo-service                   ClusterIP   10.100.226.179  <none>      27017/TCP                     7m6s
 ```
+### 7. Deploy the Litmus exporter
+Litmus is automatically exposing metrics in a prometheus format.
+In order to take advantage to it , we simply need to deploy a PodMonitor ( CRD created by the Prometheus Operator)
+```
+kubectl apply -f prometheus/podmonitor.yaml
+```
 
-### 5. Deploy K6 test
+### 8. Deploy K6 test
 The repository contains a DockerFile that :
 - install the latest version of K6
 - deploy their prometheus integration ( this integration will push the load testing data into Prometheus)

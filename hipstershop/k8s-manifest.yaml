@@ -5,17 +5,17 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: emailservice
+      app: hipster-shop
+      service: emailservice
       product: hipster-shop
   template:
     metadata:
       labels:
-        app: emailservice
+        app: hipster-shop
+        service: emailservice
         product: hipster-shop
       annotations:
-        metrics.dynatrace.com/path: /stats/prometheus
-        metrics.dynatrace.com/port: "15020"
-        metrics.dynatrace.com/scrape: "true"
+        litmuschaos.io/chaos: "true"
     spec:
       terminationGracePeriodSeconds: 5
       containers:
@@ -55,7 +55,8 @@ metadata:
 spec:
   type: ClusterIP
   selector:
-    app: emailservice
+    app: hipster-shop
+    service: emailservice
   ports:
   - name: grpc
     port: 5000
@@ -68,17 +69,17 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: checkoutservice
+      app: hipster-shop
+      service: checkoutservice
       product: hipster-shop
   template:
     metadata:
       labels:
-        app: checkoutservice
+        app: hipster-shop
+        service: checkoutservice
         product: hipster-shop
       annotations:
-        metrics.dynatrace.com/path: /stats/prometheus
-        metrics.dynatrace.com/port: "15020"
-        metrics.dynatrace.com/scrape: "true"
+        litmuschaos.io/chaos: "true"
     spec:
       containers:
       - name: server
@@ -131,7 +132,8 @@ metadata:
 spec:
   type: ClusterIP
   selector:
-    app: checkoutservice
+    app: hipster-shop
+    service: checkoutservice
   ports:
   - name: grpc
     port: 5050
@@ -144,17 +146,17 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: recommendationservice
+      app: hipster-shop
+      service: recommendationservice
       product: hipster-shop
   template:
     metadata:
       labels:
-        app: recommendationservice
+        app: hipster-shop
+        service: recommendationservice
         product: hipster-shop
       annotations:
-        metrics.dynatrace.com/path: /stats/prometheus
-        metrics.dynatrace.com/port: "15020"
-        metrics.dynatrace.com/scrape: "true"
+        litmuschaos.io/chaos: "true"
     spec:
       terminationGracePeriodSeconds: 5
  # imagePullsecrets required for perform2019????      
@@ -202,7 +204,8 @@ metadata:
 spec:
   type: ClusterIP
   selector:
-    app: recommendationservice
+    app: hipster-shop
+    service: recommendationservice
   ports:
   - name: grpc
     port: 8080
@@ -215,18 +218,17 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: frontend
+      app: hipster-shop
+      service: frontend
       product: hipster-shop
   template:
     metadata:
       labels:
-        app: frontend
+        app: hipster-shop
+        service: frontend
         product: hipster-shop
       annotations:
-        sidecar.istio.io/rewriteAppHTTPProbers: "true"
-        metrics.dynatrace.com/path: /stats/prometheus
-        metrics.dynatrace.com/port: "15020"
-        metrics.dynatrace.com/scrape: "true"
+        litmuschaos.io/chaos: "true"
     spec:
       containers:
       - name: server
@@ -293,7 +295,8 @@ metadata:
 spec:
   type: ClusterIP
   selector:
-    app: frontend
+    app: hipster-shop
+    service: frontend
   ports:
   - name: http
     port: 80
@@ -303,11 +306,10 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: onlineboutique-ingress
-  annotations:
-    kubernetes.io/ingress.class: nginx
 spec:
+  ingressClassName: nginx
   rules:
-    - host :  "onlineboutique.IP_TO_REPLACE.nip.io"
+    - host :  "onlineboutique.34.141.25.38.nip.io"
       http:
         paths:
           - pathType: ImplementationSpecific
@@ -325,17 +327,17 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: paymentservice
+      app: hipster-shop
+      service: paymentservice
       product: hipster-shop
   template:
     metadata:
       labels:
-        app: paymentservice
+        app: hipster-shop
+        service: paymentservice
         product: hipster-shop
       annotations:
-        metrics.dynatrace.com/path: /stats/prometheus
-        metrics.dynatrace.com/port: "15020"
-        metrics.dynatrace.com/scrape: "true"
+        litmuschaos.io/chaos: "true"
     spec:
       terminationGracePeriodSeconds: 5
       containers:
@@ -369,7 +371,8 @@ metadata:
 spec:
   type: ClusterIP
   selector:
-    app: paymentservice
+    app: hipster-shop
+    service: paymentservice
   ports:
   - name: grpc
     port: 50051
@@ -382,23 +385,23 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: productcatalogservice
+      app: productcatalog
+      service: productcatalogservice
       product: hipster-shop
   template:
     metadata:
       labels:
-        app: productcatalogservice
+        app: productcatalog
+        service: productcatalogservice
         product: hipster-shop
       annotations:
-        metrics.dynatrace.com/path: /stats/prometheus
-        metrics.dynatrace.com/port: "15020"
-        metrics.dynatrace.com/scrape: "true"
+        litmuschaos.io/chaos: "true"
     spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: server
         # image: registry.lab.dynatrace.org/cloudplatform/hipster-shop-productcatalogservice
-        image: gcr.io/dynatrace-demoability/productcatalogservice:9e830c2
+        image: gcr.io/dynatrace-demoability/productcatalogservice:dd747d8-dirty
         ports:
         - containerPort: 3550
         env:
@@ -423,8 +426,8 @@ spec:
             cpu: 100m
             memory: 64Mi
           limits:
-            cpu: 200m
-            memory: 128Mi
+            cpu: 150m
+            memory: 120Mi
       nodeSelector:
         node-type: worker
 ---
@@ -435,7 +438,8 @@ metadata:
 spec:
   type: ClusterIP
   selector:
-    app: productcatalogservice
+    app: productcatalog
+    service: productcatalogservice
   ports:
   - name: grpc
     port: 3550
@@ -448,22 +452,22 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: cartservice
+      app: hipster-shop
+      service: cartservice
       product: hipster-shop
   template:
     metadata:
       labels:
-        app: cartservice
+        app: hipster-shop
+        service: cartservice
         product: hipster-shop
       annotations:
-        metrics.dynatrace.com/path: /stats/prometheus
-        metrics.dynatrace.com/port: "15020"
-        metrics.dynatrace.com/scrape: "true"
+        litmuschaos.io/chaos: "true"
     spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: server
-        image: gcr.io/dynatrace-demoability/cartservice:9e830c2
+        image: hrexed/cartservice-nootel:0.1
         ports:
         - containerPort: 7070
         env:
@@ -475,8 +479,8 @@ spec:
           value: "0.0.0.0"
         resources:
           requests:
-            cpu: 200m
-            memory: 128Mi
+            cpu: 300m
+            memory: 512Mi
           limits:
             cpu: 300m
             memory: 512Mi
@@ -499,7 +503,8 @@ metadata:
 spec:
   type: ClusterIP
   selector:
-    app: cartservice
+    app: hipster-shop
+    service: cartservice
   ports:
   - name: grpc
     port: 7070
@@ -512,17 +517,17 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: currencyservice
+      app: hipster-shop
+      service: currencyservice
       product: hipster-shop
   template:
     metadata:
       labels:
-        app: currencyservice
+        app: hipster-shop
+        service: currencyservice
         product: hipster-shop
       annotations:
-        metrics.dynatrace.com/path: /stats/prometheus
-        metrics.dynatrace.com/port: "15020"
-        metrics.dynatrace.com/scrape: "true"
+        litmuschaos.io/chaos: "true"
     spec:
       terminationGracePeriodSeconds: 5
       containers:
@@ -563,7 +568,8 @@ metadata:
 spec:
   type: ClusterIP
   selector:
-    app: currencyservice
+    app: hipster-shop
+    service: currencyservice
   ports:
   - name: grpc
     port: 7000
@@ -576,17 +582,17 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: shippingservice
+      app: hipster-shop
+      service: shippingservice
       product: hipster-shop
   template:
     metadata:
       labels:
-        app: shippingservice
+        app: hipster-shop
+        service: shippingservice
         product: hipster-shop
       annotations:
-        metrics.dynatrace.com/path: /stats/prometheus
-        metrics.dynatrace.com/port: "15020"
-        metrics.dynatrace.com/scrape: "true"
+        litmuschaos.io/chaos: "true"
     spec:
       containers:
       - name: server
@@ -628,7 +634,8 @@ metadata:
 spec:
   type: ClusterIP
   selector:
-    app: shippingservice
+    app: hipster-shop
+    service: shippingservice
   ports:
   - name: grpc
     port: 50051
@@ -641,19 +648,19 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: redis-cart
+      app: hipster-shop
+      service: redis-cart
       product: hipster-shop
   template:
     metadata:
       labels:
-        app: redis-cart
+        app: hipster-shop
+        service: redis-cart
         product: hipster-shop
       annotations: # here we annotate the deployment to be scraped by dynatrace
         prometheus.io/port: '9121'
         prometheus.io/scrape: 'true'
-        metrics.dynatrace.com/path: /stats/prometheus
-        metrics.dynatrace.com/port: "15020"
-        metrics.dynatrace.com/scrape: "true"
+        litmuschaos.io/chaos: "true"
     spec:
       containers:
       - name: redis
@@ -700,7 +707,8 @@ metadata:
 spec:
   type: ClusterIP
   selector:
-    app: redis-cart
+    app: hipster-shop
+    service: redis-cart
   ports:
   - name: redis
     port: 6379
@@ -713,33 +721,27 @@ metadata:
 spec:
   selector:
     matchLabels:
-      app: adservice
+      app: hipster-shop
+      service: adservice
       product: hipster-shop
   template:
     metadata:
       labels:
-        app: adservice
+        app: hipster-shop
+        service: adservice
         product: hipster-shop
       annotations:
-        metrics.dynatrace.com/path: /stats/prometheus
-        metrics.dynatrace.com/port: "15020"
-        metrics.dynatrace.com/scrape: "true"
+        litmuschaos.io/chaos: "true"
     spec:
       terminationGracePeriodSeconds: 5
       containers:
       - name: server
-        image: gcr.io/dynatrace-demoability/adservice:9e830c2
+        image: hrexed/adservice-safe:0.1
         ports:
         - containerPort: 9555
         env:
         - name: PORT
           value: "9555"
-        # - name: DISABLE_STATS
-        #   value: "1"
-        # - name: DISABLE_TRACING
-        #   value: "1"
-        #- name: JAEGER_SERVICE_ADDR
-        #  value: "jaeger-collector:14268"
         resources:
           requests:
             cpu: 200m
@@ -767,7 +769,8 @@ metadata:
 spec:
   type: ClusterIP
   selector:
-    app: adservice
+    app: hipster-shop
+    service: adservice
   ports:
   - name: grpc
     port: 9555

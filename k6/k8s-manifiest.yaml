@@ -21,12 +21,13 @@ spec:
       containers:
         - name: k6load
           image: hrexed/k6-prometheus:0.1
+          imagePullPolicy: Always
           args: ["-u", "30", "-d", "24h"]
           env:
             - name: FRONTEND_ADDR
               value: "onlineboutique.IP_TO_REPLACE.nip.io"
             - name: K6_PROMETHEUS_REMOTE_URL
-              value: http://prometheus-prometheus-oper-prometheus.default.svc:9090/api/v1/write
+              value: http://prometheus-kube-prometheus-prometheus.default.svc.cluster.local:9090/api/v1/write
           resources:
             requests:
               cpu: 300m

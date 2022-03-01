@@ -5,6 +5,7 @@ RUN apk --no-cache add git
 # RUN CGO_ENABLED=0 go install -a -trimpath -ldflags "-s -w -X go.k6.io/k6/lib/consts.VersionDetails=$(date -u +"%FT%T%z")/$(git describe --always --long --dirty)"
 RUN go install -trimpath go.k6.io/xk6/cmd/xk6@latest
 RUN xk6 build --with github.com/grafana/xk6-output-prometheus-remote@latest
+RUN xk6 build --with github.com/k6io/xk6-distributed-tracing@latest
 RUN cp k6 $GOPATH/bin/k6
 
 # COPY ./tests ./tests
@@ -18,5 +19,5 @@ USER 12345
 ARG VUS="10"
 ARG DURATION="24h"
 
-COPY --chown=root:root ./loadgenerator.js /load
-ENTRYPOINT ["k6","run","-o", "output-prometheus-remote" ,"/load/loadgenerator.js"]
+COPY --chown=root:root ./loadgenerator.js ./loadgenerator.js
+ENTRYPOINT ["k6","run","-o", "output-prometheus-remote" ,"/loadgenerator.js"]

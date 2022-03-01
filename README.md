@@ -57,8 +57,10 @@ kubectl label <nodename3> node-type=worker
 ```
 #### 1.Deploy Nginx Ingress Controller
 ```
-helm repo add nginx-stable https://helm.nginx.com/stable
-helm install ngninx nginx-stable/nginx-ingress --set controller.enableLatencyMetrics=true --set prometheus.create=true --set controller.nodeSelector.elector.node-type=observability
+kubectl create clusterrolebinding cluster-admin-binding \
+  --clusterrole cluster-admin \
+  --user $(gcloud config get-value account)
+kubectl apply -f nginx/deploy.yaml
 ```
 this command will install the nginx controller on the nodes having the label `observability` 
 
@@ -69,7 +71,7 @@ With the public ip , we would be able to update the deployment of the ingress fo
 * grafana
 * litmus chaos
 ```
-IP=$(kubectl get svc ngninx-nginx-ingress -ojson | jq -j '.status.loadBalancer.ingress[].ip')
+IP=$(kubectl get svc nginx-ingress-nginx-controller -n ingress-nginx -ojson | jq -j '.status.loadBalancer.ingress[].ip')
 ```
 ##### 3. update the deployment file
 ```
@@ -84,7 +86,7 @@ We will neeed to deploy Prometheus only on the nodes having the label `observabi
 ```
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 helm repo update
-helm install prometheus prometheus-community/kube-prometheus-stack --set alertmanager.nodeSelector.selector.node-type=observability --set server.nodeSelector.selector.node-type=observability --set prometheusOperator.nodeSelector.selector.node-type=observability  --set prometheus.nodeSelector.selector.node-type=observability --set grafana.nodeSelector.selector.node-type=observability  
+helm install prometheus prometheus-community/kube-prometheus-stack --set server.nodeSelector.node-type=observability --set prometheusOperator.nodeSelector.selector.node-type=observability  --set prometheus.nodeSelector.selector.node-type=observability --set grafana.nodeSelector.selector.node-type=observability  
 ```
 
 #### 5.HipsterShop
@@ -96,7 +98,7 @@ kubectl apply -f hipstershop/k8s-manifest.yaml -n hipster-shop
 ```
 #### 6. Expose Grafana
 ```
-kubectl edit svc -l app.kubernetes.io/name=grafana
+GRAFANAID=$(kubectl edit svc -l app.kubernetes.io/name=grafana)
 ```
 change to type NodePort
 ```yaml
@@ -152,41 +154,248 @@ kubectl get secret --namespace default prometheus-grafana -o jsonpath="{.data.ad
 ```
 helm repo add litmuschaos https://litmuschaos.github.io/litmus-helm/
 kubectl create ns litmus
-helm install install chaos litmuschaos/litmus --namespace=litmus --set ingress.enabled=true --ingress.host.name=litmus.$IP.nip.io --set portal.frontend.nodeSelector.selector.node-type=observability --set portal.server.nodeSelector.selector.node-type=observability --set mongo.nodeSelector.selector.node-type=observability
+helm  install chaos litmuschaos/litmus --namespace=litmus --set ingress.enabled=true --set ingress.host.name="litmus.$IP.nip.io" --set portal.frontend.nodeSelector.node-type=observability --set portal.server.nodeSelector.node-type=observability --set mongo.nodeSelector.node-type=observability
 ```
 
-### 6. Verify you installation
-Check the pods in the namespace litmus
-```
-kubectl get pods -n litmus
-```
-Expected output
-```
-NAME                                    READY   STATUS  RESTARTS  AGE
-litmusportal-frontend-97c8bf86b-mx89w   1/1     Running 2         6m24s
-litmusportal-server-5cfbfc88cc-m6c5j    2/2     Running 2         6m19s
-mongo-0                                 1/1     Running 0         6m16s
-```
+#### 6. update the litmus service
 
-Check the services :
+The kubernetes service needs to be `NodePort`, make sure to update the service type  of:
+- litmusportal-frontend-service
+- litmusportal-server-service
+
+if you run 
 ```
 kubectl get svc -n litmus
 ```
-Expected output :
+you should have :
 ```
-NAME                            TYPE        CLUSTER-IP      EXTERNAL-IP PORT(S)                       AGE
-litmusportal-frontend-service   NodePort    10.100.105.154  <none>      9091:30229/TCP                7m14s
-litmusportal-server-service     NodePort    10.100.150.175  <none>      9002:30479/TCP,9003:31949/TCP 7m8s
-mongo-service                   ClusterIP   10.100.226.179  <none>      27017/TCP                     7m6s
+NAME                            TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                         AGE
+chaos-litmus-portal-mongo       ClusterIP   10.104.107.117   <none>        27017/TCP                       2m
+litmusportal-frontend-service   NodePort    10.101.81.70     <none>        9091:30385/TCP                  2m
+litmusportal-server-service     NodePort    10.108.151.79    <none>        9002:32456/TCP,9003:31160/TCP   2m
 ```
-### 7. Deploy the Litmus exporter
+
+
+#### 8. update the litmus ingress 
+To make the litmus ingress work you will need to update the current ingress deployed by Helm by adding the following annotations :
+* `nginx.ingress.kubernetes.io/rewrite-target: /$1`
+* `nginx.ingress.kubernetes.io/use-regex: "true"`
+
+To update the ingress you will need to run :
+```
+kubectl edit ingress litmus-ingress -n litmus
+```
+here is the update version of the ingress :
+```
+  apiVersion: networking.k8s.io/v1
+  kind: Ingress
+  metadata:
+      annotations:
+          meta.helm.sh/release-name: chaos
+          meta.helm.sh/release-namespace: litmus
+          nginx.ingress.kubernetes.io/rewrite-target: /$1
+          nginx.ingress.kubernetes.io/use-regex: "true"
+      generation: 3
+      labels:
+          app.kubernetes.io/component: litmus-frontend
+          app.kubernetes.io/instance: chaos
+          app.kubernetes.io/managed-by: Helm
+          app.kubernetes.io/name: litmus
+          app.kubernetes.io/part-of: litmus
+          app.kubernetes.io/version: 2.4.4
+          helm.sh/chart: litmus-2.4.4
+          litmuschaos.io/version: 2.4.0
+         name: litmus-ingress
+  namespace: litmus
+  spec:
+    ingressClassName: nginx
+    rules:
+    - host: litmus.<YOUR IP>.nip.io
+      http:
+      paths:
+        - backend:
+          service:
+            name: chaos-litmus-frontend-service
+            port:
+              number: 9091
+          path: /(.*)
+          pathType: ImplementationSpecific
+        - backend:
+            service:
+              name: chaos-litmus-server-service
+              port:
+                number: 9002
+          path: /backend/(.*)
+          pathType: ImplementationSpecific
+```
+Now that Litmus has been installed you can connect to the front service using :
+* Url : http://litmus.<YOU INgress IP>.nip.io/
+* Username : admin
+* Password : litmus
+
+### 9. Update the new deployment generated by the ChaosCenter
+When connecting the first time to front end of Litmus, it will deploy in the same names space a `self agent`
+Check if the deployment of the self agent is successful :
+```
+kubectl get pods -n litmus
+```
+Expected result :
+```
+NAME                                     READY   STATUS    RESTARTS   AGE
+chaos-exporter-fd9667569-ztt7s           1/1     Running   0          9m9s
+chaos-litmus-frontend-68d8d97586-84ws2   1/1     Running   0          47h
+chaos-litmus-mongo-0                     1/1     Running   0          2d15h
+chaos-litmus-server-df8fff796-xjqlc      2/2     Running   0          2d15h
+chaos-operator-ce-7785cf959b-z7pgz       1/1     Running   0          8m7s
+event-tracker-76fc96fb87-qwbxc           1/1     Running   0          7m13s
+subscriber-77b87b5597-kdsb8              1/1     Running   0          10m
+workflow-controller-5dd664cf4b-lxvng     1/1     Running   0          10m
+```
+The new deployment done byt the Chaos Center doesn't have the nodeSelector defined. 
+Therefore we need to update the new deployment.
+let's get the deployment name:
+```
+kubectl get deployment -n litmus
+```
+Expected result:
+```
+NAME                    READY   UP-TO-DATE   AVAILABLE   AGE
+chaos-exporter          1/1     1            1           2d14h
+chaos-litmus-frontend   1/1     1            1           2d15h
+chaos-litmus-server     1/1     1            1           2d15h
+chaos-operator-ce       1/1     1            1           2d14h
+event-tracker           1/1     1            1           2d14h
+subscriber              1/1     1            1           2d14h
+workflow-controller     1/1     1            1           2d14h
+```
+We need to add a `nodeSelector` to  the following deployemnts :
+* `chaos-exporter`
+* `chaos-operator-ce`
+* `event-tracker`
+* `subscriber`
+* `workflow-controller`
+
+Edit each of the deployment and add :
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+   .....
+  
+spec:
+  ....
+  template:
+    ...
+    spec:
+      dnsPolicy: ClusterFirst
+      containers:
+        ...
+      nodeSelector:
+        node-type: observability
+     
+```
+
+### 10. Deploy the Litmus exporter
 Litmus is automatically exposing metrics in a prometheus format.
-In order to take advantage to it , we simply need to deploy a PodMonitor ( CRD created by the Prometheus Operator)
+In order to take advantage to it , we simply need to deploy a ServiceMonitor ( CRD created by the Prometheus Operator)
 ```
 kubectl apply -f prometheus/podmonitor.yaml
 ```
 
-### 8. Deploy K6 test
+### 11. Configure Prometheus by enabling the feature remo-writer
+
+To measure the impact of our experiments on use traffic , we will use the load testing tool named K6.
+K6 has a Prometheus integration that writes metrics to the Prometheus Server.
+This integration requires to enable a feature in Prometheus named: remote-writer
+
+To enable this feature we will need to edit the CRD containing all the settings of promethes: prometehus
+
+To get the Prometheus object named use by prometheus we need to run the following command: 
+```
+kubectl get Prometheus
+```
+here is the expected output:
+```
+NAME                                    VERSION   REPLICAS   AGE
+prometheus-kube-prometheus-prometheus   v2.32.1   1          22h
+```
+We will need to add an extra property in the configuration object :
+```
+enableFeatures:
+- remote-write-receiver
+```
+so to update the object :
+```
+kubectl edit Prometheus prometheus-kube-prometheus-prometheus
+```
+After the update your Prometheus object should look  like :
+```
+apiVersion: monitoring.coreos.com/v1
+kind: Prometheus
+metadata:
+  annotations:
+    meta.helm.sh/release-name: prometheus
+    meta.helm.sh/release-namespace: default
+  generation: 2
+  labels:
+    app: kube-prometheus-stack-prometheus
+    app.kubernetes.io/instance: prometheus
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/part-of: kube-prometheus-stack
+    app.kubernetes.io/version: 30.0.1
+    chart: kube-prometheus-stack-30.0.1
+    heritage: Helm
+    release: prometheus
+  name: prometheus-kube-prometheus-prometheus
+  namespace: default
+spec:
+  alerting:
+  alertmanagers:
+  - apiVersion: v2
+    name: prometheus-kube-prometheus-alertmanager
+    namespace: default
+    pathPrefix: /
+    port: http-web
+  enableAdminAPI: false
+  enableFeatures:
+  - remote-write-receiver
+  externalUrl: http://prometheus-kube-prometheus-prometheus.default:9090
+  image: quay.io/prometheus/prometheus:v2.32.1
+  listenLocal: false
+  logFormat: logfmt
+  logLevel: info
+  paused: false
+  podMonitorNamespaceSelector: {}
+  podMonitorSelector:
+  matchLabels:
+  release: prometheus
+  portName: http-web
+  probeNamespaceSelector: {}
+  probeSelector:
+  matchLabels:
+  release: prometheus
+  replicas: 1
+  retention: 10d
+  routePrefix: /
+  ruleNamespaceSelector: {}
+  ruleSelector:
+  matchLabels:
+  release: prometheus
+  securityContext:
+  fsGroup: 2000
+  runAsGroup: 2000
+  runAsNonRoot: true
+  runAsUser: 1000
+  serviceAccountName: prometheus-kube-prometheus-prometheus
+  serviceMonitorNamespaceSelector: {}
+  serviceMonitorSelector:
+  matchLabels:
+  release: prometheus
+  shards: 1
+  version: v2.32.1
+```
+### 12. Deploy K6 test
 The repository contains a DockerFile that :
 - install the latest version of K6
 - deploy their prometheus integration ( this integration will push the load testing data into Prometheus)

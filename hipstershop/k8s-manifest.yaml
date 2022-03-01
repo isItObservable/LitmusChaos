@@ -309,7 +309,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host :  "onlineboutique.34.141.25.38.nip.io"
+    - host :  "onlineboutique.IP_TO_REPLACE.nip.io"
       http:
         paths:
           - pathType: ImplementationSpecific

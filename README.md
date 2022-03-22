@@ -76,9 +76,9 @@ IP=$(kubectl get svc nginx-ingress-nginx-controller -n ingress-nginx -ojson | jq
 ##### 3. update the deployment file
 ```
 sed -i "s,IP_TO_REPLACE,$IP," hipstershop/k8s-manifest.yaml
-sed -i "s,IP_TO_REPLACE,$IP," hipstershop/k8s-manifest_nolimit.yaml 
 sed -i "s,IP_TO_REPLACE,$IP," grafana/ingress.yaml
 sed -i "s,IP_TO_REPLACE,$IP," k6/k8s-manifiest.yaml
+sed -i "s,IP_TO_REPLACE,$IP," litmus chaos/workflow/node_experiment_workflow.yaml
 ```
 #### 4.Prometheus
 Our Chaos experiments will utilize the Prometheus as an Observabilty backend
@@ -154,12 +154,12 @@ kubectl get secret --namespace default prometheus-grafana -o jsonpath="{.data.ad
 ```
 helm repo add litmuschaos https://litmuschaos.github.io/litmus-helm/
 kubectl create ns litmus
-helm  install chaos litmuschaos/litmus --namespace=litmus --set ingress.enabled=true --set ingress.host.name="litmus.$IP.nip.io" --set portal.frontend.nodeSelector.node-type=observability --set portal.server.nodeSelector.node-type=observability --set mongo.nodeSelector.node-type=observability
+helm  install chaos litmuschaos/litmus --namespace=litmus --set ingress.enabled=true --set ingress.host.name="litmus.34.159.144.147.nip.io" --set portal.frontend.nodeSelector.node-type=observability --set portal.server.nodeSelector.node-type=observability --set mongo.nodeSelector.node-type=observability
 ```
 
 #### 6. update the litmus service
 
-The kubernetes service needs to be `NodePort`, make sure to update the service type  of:
+The kubernetes service needs to be `ClusterIP`, make sure to update the service type  of:
 - litmusportal-frontend-service
 - litmusportal-server-service
 
@@ -171,8 +171,8 @@ you should have :
 ```
 NAME                            TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                         AGE
 chaos-litmus-portal-mongo       ClusterIP   10.104.107.117   <none>        27017/TCP                       2m
-litmusportal-frontend-service   NodePort    10.101.81.70     <none>        9091:30385/TCP                  2m
-litmusportal-server-service     NodePort    10.108.151.79    <none>        9002:32456/TCP,9003:31160/TCP   2m
+litmusportal-frontend-service   ClusterIP    10.101.81.70     <none>        9091:30385/TCP                  2m
+litmusportal-server-service     ClusterIP    10.108.151.79    <none>        9002:32456/TCP,9003:31160/TCP   2m
 ```
 
 
@@ -180,6 +180,7 @@ litmusportal-server-service     NodePort    10.108.151.79    <none>        9002:
 To make the litmus ingress work you will need to update the current ingress deployed by Helm by adding the following annotations :
 * `nginx.ingress.kubernetes.io/rewrite-target: /$1`
 * `nginx.ingress.kubernetes.io/use-regex: "true"`
+* `kubernetes.io/ingress.class: nginx`
 
 To update the ingress you will need to run :
 ```
@@ -193,6 +194,7 @@ here is the update version of the ingress :
       annotations:
           meta.helm.sh/release-name: chaos
           meta.helm.sh/release-namespace: litmus
+          kubernetes.io/ingress.class: nginx
           nginx.ingress.kubernetes.io/rewrite-target: /$1
           nginx.ingress.kubernetes.io/use-regex: "true"
       generation: 3
@@ -395,19 +397,7 @@ spec:
   shards: 1
   version: v2.32.1
 ```
-### 12. Deploy K6 test
-The repository contains a DockerFile that :
-- install the latest version of K6
-- deploy their prometheus integration ( this integration will push the load testing data into Prometheus)
-- add the loadtesting script `k6/loadgenerator.js` in the container
 
-in the tutorial we won't build this image but utilize the prebuilt image : `hrexed/k6-prometheus:0.1`
-
-Let's deploy the loadgenerator:
-```
-kubectl create ns k6
-kubectl apply -f k6/k8s-manifiest.yaml -n k6
-```
 
 
 
